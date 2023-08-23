@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:to_do_app_with_notification/spcial_feature/todo/pages/homepage.dart';
+import 'package:to_do_app_with_notification/default/utils/constants.dart';
+import 'package:to_do_app_with_notification/spcial_feature/onboarding/pages/onboarding.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -22,10 +23,12 @@ class MyApp extends StatelessWidget {
           title: 'To Do App with notification',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+            scaffoldBackgroundColor: AppConst.kblack,
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true
           ),
-          home: const HomePage(),
+          themeMode: ThemeMode.dark,
+          home: const OnBoarding(),
         );
       }
     );

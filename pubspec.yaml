@@ -38,6 +38,8 @@ dependencies:
   flutter_screenutil: ^5.8.4
   hooks_riverpod: ^2.3.7
   google_fonts: ^5.1.0
+  flutter_vector_icons: ^2.0.0
+  smooth_page_indicator: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +64,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

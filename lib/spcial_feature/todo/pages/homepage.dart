@@ -3,7 +3,6 @@ import 'package:to_do_app_with_notification/default/utils/constants.dart';
 import 'package:to_do_app_with_notification/default/widgets/appstyle.dart';
 import 'package:to_do_app_with_notification/default/widgets/reueable_text.dart';
 
-import '../../../default/widgets/width_spacer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,14 +17,12 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Center(
         child: Row(
-         
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ReusableText(
                 text: "Todo ",
                 style: appstyle(30, AppConst.kcyan, FontWeight.bold)),
-
-                WidthSpacer(width: 20,),
                 
       
                 ReusableText(
