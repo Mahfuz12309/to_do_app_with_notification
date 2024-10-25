@@ -1,52 +1,30 @@
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_app/model/todo_model.dart';
 
 class HiveService {
-  static const String todoBoxName = "todoBox";
+  Box<Todo>? _todoBox;
 
-  // Initialize Hive and open the to-do box
-  static Future<void> initHive() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(TodoAdapter());  // Register the Todo model adapter
-    await Hive.openBox<Todo>(todoBoxName);  // Open the box for to-dos
+  // Initialize the Hive box
+  Future<void> init() async {
+    if (!Hive.isBoxOpen('todobox')) {
+      _todoBox = await Hive.openBox<Todo>('todobox');
+    } else {
+      _todoBox = Hive.box<Todo>('todobox');
+    }
   }
 
-  // Add a new to-do item
-  static Future<void> addTodoItem(Todo todo) async {
-    final box = Hive.box<Todo>(todoBoxName);
-    await box.add(todo);
+  // Save todo
+  void saveTodo(Todo todo) {
+    _todoBox?.add(todo);
   }
 
-  // Get all to-do items from the box
-  static List<Todo> getAllTodos() {
-    final box = Hive.box<Todo>(todoBoxName);
-    return box.values.toList().cast<Todo>();
+  // Update todo at a specific index
+  void updateTodo(int index, Todo todo) {
+    _todoBox?.putAt(index, todo);
   }
 
-  // Get to-do items for a specific date
-  static List<Todo> getTodosForDate(DateTime date) {
-    final box = Hive.box<Todo>(todoBoxName);
-    return box.values
-        .where((todo) => todo.startTime.day == date.day && todo.startTime.month == date.month && todo.startTime.year == date.year)
-        .toList()
-        .cast<Todo>();
-  }
-
-  // Update an existing to-do item
-  static Future<void> updateTodoItem(int index, Todo updatedTodo) async {
-    final box = Hive.box<Todo>(todoBoxName);
-    await box.putAt(index, updatedTodo);
-  }
-
-  // Delete a to-do item
-  static Future<void> deleteTodoItem(int index) async {
-    final box = Hive.box<Todo>(todoBoxName);
-    await box.deleteAt(index);
-  }
-
-  // Close the Hive box (usually called when the app is closing)
-  static Future<void> closeHive() async {
-    await Hive.close();
+  // Retrieve todos
+  List<Todo> getTodos() {
+    return _todoBox?.values.toList() ?? [];
   }
 }

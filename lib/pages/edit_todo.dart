@@ -2,26 +2,43 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AddTodoDialog extends StatefulWidget {
-  final Function(String, DateTime, DateTime) onSave;
+class EditTodoDialog extends StatefulWidget {
+  final String currentTitle;
+  final String currentDescription;
+  final DateTime currentStartTime;
+  final DateTime currentEndTime;
+  final Function(String, String, DateTime, DateTime) onSave;
 
-  AddTodoDialog({required this.onSave});
+  EditTodoDialog({
+    required this.currentTitle,
+    required this.currentDescription,
+    required this.currentStartTime,
+    required this.currentEndTime,
+    required this.onSave,
+  });
 
   @override
-  _AddTodoDialogState createState() => _AddTodoDialogState();
+  _EditTodoDialogState createState() => _EditTodoDialogState();
 }
 
-class _AddTodoDialogState extends State<AddTodoDialog> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+class _EditTodoDialogState extends State<EditTodoDialog> {
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
   DateTime? selectedStartTime;
   DateTime? selectedEndTime;
 
-  // Function to show Cupertino-style date and time pickers with confirm buttons
-  Future<void> _pickDateAndTime(BuildContext context, bool isStartTime) async {
-    DateTime initialDate = DateTime.now(); // Current time as initial date
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.currentTitle);
+    descriptionController = TextEditingController(text: widget.currentDescription);
+    selectedStartTime = widget.currentStartTime;
+    selectedEndTime = widget.currentEndTime;
+  }
 
-    // Ensure the minimum date is at least the current time
+  Future<void> _pickDateAndTime(BuildContext context, bool isStartTime) async {
+    DateTime initialDate = isStartTime ? selectedStartTime! : selectedEndTime!;
+
     DateTime? pickedDate = await showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
@@ -29,9 +46,9 @@ class _AddTodoDialogState extends State<AddTodoDialog> {
         return _buildBottomPicker(
           context,
           CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
+            mode: CupertinoDatePickerMode.dateAndTime,
             initialDateTime: initialDate,
-            minimumDate: initialDate,  // Set minimum date to the current time
+            minimumDate: DateTime.now(),
             onDateTimeChanged: (DateTime dateTime) {
               tempPickedDate = dateTime;
             },
@@ -44,47 +61,16 @@ class _AddTodoDialogState extends State<AddTodoDialog> {
     );
 
     if (pickedDate != null) {
-      TimeOfDay? pickedTime = await showCupertinoModalPopup(
-        context: context,
-        builder: (BuildContext context) {
-          TimeOfDay tempPickedTime = TimeOfDay.fromDateTime(initialDate);
-          return _buildBottomPicker(
-            context,
-            CupertinoDatePicker(
-              mode: CupertinoDatePickerMode.time,
-              initialDateTime: initialDate,
-              onDateTimeChanged: (DateTime dateTime) {
-                tempPickedTime = TimeOfDay.fromDateTime(dateTime);
-              },
-            ),
-            onConfirm: () {
-              Navigator.pop(context, tempPickedTime);
-            },
-          );
-        },
-      );
-
-      if (pickedTime != null) {
-        DateTime selectedDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
-
-        setState(() {
-          if (isStartTime) {
-            selectedStartTime = selectedDateTime;
-          } else {
-            selectedEndTime = selectedDateTime;
-          }
-        });
-      }
+      setState(() {
+        if (isStartTime) {
+          selectedStartTime = pickedDate;
+        } else {
+          selectedEndTime = pickedDate;
+        }
+      });
     }
   }
 
-  // Helper function to build Cupertino picker with confirm button
   Widget _buildBottomPicker(BuildContext context, Widget picker, {required Function() onConfirm}) {
     return Container(
       height: 300,
@@ -111,7 +97,7 @@ class _AddTodoDialogState extends State<AddTodoDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Add New Task'),
+      title: Text('Edit Task'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -190,7 +176,12 @@ class _AddTodoDialogState extends State<AddTodoDialog> {
             if (titleController.text.isNotEmpty &&
                 selectedStartTime != null &&
                 selectedEndTime != null) {
-              widget.onSave(titleController.text, selectedStartTime!, selectedEndTime!);
+              widget.onSave(
+                titleController.text,
+                descriptionController.text,
+                selectedStartTime!,
+                selectedEndTime!,
+              );
               Navigator.of(context).pop();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
